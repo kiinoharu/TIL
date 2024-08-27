@@ -1,0 +1,44 @@
+##ユーザー認証の導入##
+
+#Basic認証#
+
+Basic認証とは、HTTP通信の規格に備え付けられているユーザー認証の仕組みのこと。
+サーバーとの通信が可能なユーザーとパスワードをあらかじめ設定しておき、設定と一致したユーザーのみが閲覧できるようユーザーを制限できる。
+
+#authenticate_or_request_with_http_basicメソッド#
+以下のように設定。
+
+	app/controllers/application_controller.rb
+	class ApplicationController < ActionController::Base
+	  before_action :basic_auth	  #berore_actionで呼び出す
+	
+	
+	  private
+	
+	  def basic_auth
+	    authenticate_or_request_with_http_basic do |username, password|
+	      username == ‘test’ && password == ‘0000’
+		# ”test”、パスワード”0000”を設定
+	    end
+	  end
+	end
+	
+#zsh#
+zshとは、ログインシェルと呼ばれ、プログラムを実行する時に、ユーザーの要求に一番最初に対応する役割を担うもの。隠しファイルなので、特別な設定なしではFinderなどに表示されない。
+環境変数を記載するのは、「.zshrc」内。
+
+#vim#
+vimとは、サーバー上で使用できるテキストエディタのこと。vimコマンドを用いることで、指定したファイルの編集をターミナルから実施できる。
+vimには、通常モードとインサートモードがある。
+
+通常モード：コマンドを打つことでファイルを保存したりvimを終了したりできる。以下コマンド例。
+・「:w」：作成・編集したファイルを保存する。
+・「:q」：vimを終了させる。
+・「:q!」：編集した内容を保存しないでvimを強制終了する。
+・「:wq」：編集した内容を保存してｖimを強制終了する。
+
+インサートモードは、ファイルに編集を加えることができる。「i」キーを押下することで、insertモードになり、文字の入力が可能になる。編集後はescキーを押下すると通常モードに戻る。
+
+#sourceコマンド#
+sourceコマンドとは、シェルに記述された内容を実行する役割を担う。
+
