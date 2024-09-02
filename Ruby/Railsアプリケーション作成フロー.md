@@ -82,3 +82,56 @@ gem ‘device’
 3.DBでuserテーブル確認<br>
 
 4.ローカルサーバー再起動
+
+### ６）バリデーション設定
+
+#### user.rb
+````
+class User < ApplicationRecord
+  validates :name, presence: true
+  validates :profile, presence: true
+  validates :occupation, presence: true
+  validates :position, presence: true
+  # 追記する必要があるカラムに対してバリデーションの設定を上記記述のように行う。上記記述は指定したカラムが空では保存されない設定になっている。
+end
+````
+
+### ７）device用のビューファイル生成・編集
+
+#### ターミナル
+````
+% rails g device:views
+````
+
+編集については一部注意点解説。
+#### app/views/devise/該当ディレクトリ/new.html.erb
+````
+# 例
+<%= form_with model: @user, url: user_○○_path, id: 'new_user', class: 'new_user', local: true do |f| %>
+# “model:”：今回であれば、@user
+# ”url:”：device導入後に`rails routes`を実行し、devise/該当ファイル名#createへのパスを確認し、記載
+
+ <div class="field">
+          <%= f.label :email, "メールアドレス" %><br />
+          <%= f.email_field :email, id:"user_email", autofocus: true, autocomplete: "email" %>
+</div>
+# 新規投稿時やログイン時に必要な項目を記述。
+````
+
+### ８）application_controllerに、emailとpassword以外の値も保存できるように追記
+deviceのコントローラーが編集できないため、`application_controller.rb`に記述する。<br>
+
+#### app/controllers/application_controller.rb
+````
+class ApplicationController < ActionController::Base
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
+  private
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:profile,:occupation,:position])
+
+  # 今回の記述だと、`:sign_up`時、許可するキーに`:name,:profile,:occupation,:position`を記述し、許可するパラメーターを追加している。
+  end
+end
+````
+
