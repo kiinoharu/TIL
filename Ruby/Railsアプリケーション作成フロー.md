@@ -134,4 +134,22 @@ class ApplicationController < ActionController::Base
   end
 end
 ````
+### ９）ログインしているかどうかの判定を行い、ログイン状態とログアウト状態の表示を変更
+ヘッダーの「ログイン」「新規登録」と、「ログアウト」「New Proto」を、ログインしているか否かで表示が変更するよう条件分岐。<br>
 
+#### app/controllers/application_controller.rb
+````
+<% if user_signed_in? %>
+# user_signed_i?メソッド：ユーザーログイン状態→true、ユーザーログアウト状態→falseを返す。
+   <div class="nav__right">
+     <%= link_to "ログアウト", root_path, class: :nav__logout %>
+     <%= link_to "New Proto", root_path, class: :nav__btn %>
+   </div>
+<% else %>
+  <div class="nav__right">
+    <%= link_to "ログイン", root_path, class: :nav__btn %>
+    <%= link_to "新規登録", root_path, class: :nav__btn %>
+  </div>
+<% end %>
+
+````
