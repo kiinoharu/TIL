@@ -153,3 +153,34 @@ end
 <% end %>
 
 ````
+
+### １０）ログイン・ログアウトができるよう設定
+・ヘッダーのログイン・ログアウトボタンに適切なパスを記載。
+
+#### application.html.erb
+````
+<% if user_signed_in? %>
+  <div class="nav__right">
+    <%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: :nav__logout %>
+
+    <%= link_to "New Proto", root_path, class: :nav__btn %>
+  </div>
+<% else %>
+  <div class="nav__right">
+    <%= link_to "ログイン", user_session_path, class: :nav__btn %>
+    <%= link_to "新規登録", root_path, class: :nav__btn %>
+  </div>
+<% end %>
+````
+
+・ログインしているユーザー名の表示
+
+#### index.html.erb
+````
+<div class="greeting"> 
+こんにちは、
+  <%= link_to current_user.name, root_path, class: :greeting__link%>です。
+  # 上記パスの部分にて、`current_user.name`を使用すると、現在ログインしているユーザー名を適用・表示できる。
+</div> 
+````
+
