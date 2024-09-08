@@ -251,7 +251,73 @@ class Prototype < ApplicationRecord
   validates :image, presence: true
 end
 ````
+### １５）投稿機能実装
+<br>
+・ヘッダーの「New Proto」ボタンから、新規投稿ページに遷移するようにパスを設定
+#### application.html.erb
+````application.html.erb
+<%= link_to "New Proto", new_prototype_path, class: :nav__btn %>
+# `rails routes`にて、新規投稿ページに遷移するパスを確認。`new_prototype_path`を指定。
+````
+<br>
 
+・newアクションにインスタンス変数@prototypeを定義し、Prototypeモデルの新規オブジェクトを代入
+#### prototype_controller.rb
+````
+  def new
+    @prototype = Prototype.new
+  end
+````
+<br>
+
+・new.html.erbから部分テンプレートである、_form.html.erbを呼び出す記述
+#### new.html.erb
+````new.html.erb
+ <%= render partial: "form",  locals: { prototype: @prototype } %>
+# render:部分テンプレートの呼び出しメソッド,partial:部分テンプレートの指定,locals:部分テンプレートにローカル変数を渡し、ローカル変数にコントローラーにて定義したインスタンス変数を格納することで、フォームの入力データにアクセスできる。
+````
+<br>
+
+・_form.html.erbのform_withのモデル名を正しく記述
+#### _form.html.erb
+````_form.html.erb
+<%= form_with model: prototype, local: true do |f|%>
+　# 中略
+<% end %>
+````
+
+<br>
+
+・prototypesコントローラーのprivateメソッドにストロングパラメーターをセットし、特定の値のみを受け付けるようにした。且つ、user_idもmerge
+#### prototypes_controller.rb
+````prototypes_controller.rb
+# 上略
+
+private
+
+def prototype_params
+  params.require(:prototype).permit(:title, :catch_copy, :concept, :image).merge(user_id: current_user.id)
+end
+
+#　`params.require(:prototype) `:フォームのデータから`:prototype`キーのデータを取得。これがないとエラーになる。
+# `permit(:title, :catch_copy, :concept, :image)`:許可するフィールドの指定。他のフィールドは無視され、セキュリティ強化。
+# `.merge(user_id: current_user.id)`:ログインしているユーザーのIDを追加する。
+````
+<br>
+
+・createアクションにデータ保存のための記述をし、保存されたときはルートパスに戻るような記述
+　＋　createアクションに、データが保存されなかったときは新規投稿ページへ戻るようrenderを用いて記述
+#### prototypes_controller.rb
+````prototypes_controller.rb
+  def create
+    @prototype = Prototype.new(prototype_params)
+    if @prototype.save
+      redirect_to root_path
+    else
+      render :new
+    end
+  end
+````
 
 
 
