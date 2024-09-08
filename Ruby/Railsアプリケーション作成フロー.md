@@ -86,7 +86,7 @@ gem ‘device’
 ### ６）バリデーション設定
 
 #### user.rb
-````
+````user.rb
 class User < ApplicationRecord
   validates :name, presence: true
   validates :profile, presence: true
@@ -99,7 +99,7 @@ end
 ### ７）device用のビューファイル生成・編集
 
 #### ターミナル
-````
+````ターミナル
 % rails g device:views
 ````
 
@@ -122,7 +122,7 @@ end
 deviceのコントローラーが編集できないため、`application_controller.rb`に記述する。<br>
 
 #### app/controllers/application_controller.rb
-````
+````app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
 
@@ -138,7 +138,7 @@ end
 ヘッダーの「ログイン」「新規登録」と、「ログアウト」「New Proto」を、ログインしているか否かで表示が変更するよう条件分岐。<br>
 
 #### app/controllers/application_controller.rb
-````
+````app/controllers/application_controller.rb
 <% if user_signed_in? %>
 # user_signed_i?メソッド：ユーザーログイン状態→true、ユーザーログアウト状態→falseを返す。
    <div class="nav__right">
@@ -158,10 +158,10 @@ end
 ・ヘッダーのログイン・ログアウトボタンに適切なパスを記載。
 
 #### application.html.erb
-````
+````application.html.erb
 <% if user_signed_in? %>
   <div class="nav__right">
-    <%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: :nav__logout %>
+    <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: :nav__logout %>
 
     <%= link_to "New Proto", root_path, class: :nav__btn %>
   </div>
@@ -176,11 +176,86 @@ end
 ・ログインしているユーザー名の表示
 
 #### index.html.erb
-````
+````index.html.erb
 <div class="greeting"> 
 こんにちは、
   <%= link_to current_user.name, root_path, class: :greeting__link%>です。
   # 上記パスの部分にて、`current_user.name`を使用すると、現在ログインしているユーザー名を適用・表示できる。
 </div> 
 ````
+
+### ---プロトタイプ情報投稿機能作成---
+### １１）モデル及びテーブル作成
+・`rails g model prototype`にてPrptptypeモデル作成<br>
+・マイグレーションファイルにカラム追加
+#### 2024XXXXXXXX_create_prototypes.rb
+````2024XXXXXXXX_create_prototypes.rb
+class CreatePrototypes < ActiveRecord::Migration[7.0]
+  def change
+    create_table :prototypes do |t|
+      t.string     :title,              null: false, default: ""
+      t.text       :catch_copy,         null: false
+      t.text       :concept,            null: false
+      t.references :user,               null: false, foreign_key: true
+　　　　　　　　　　　　　# 上記４項目追加
+      t.timestamps
+    end
+  end
+end
+````
+・`rails db:migrate`実行<br>
+・DB上にてテーブル及びカラムが存在することを確認
+<br>
+### １２）アソシエーション記述
+#### prototye.rb
+````prototye.rb
+class Prototype < ApplicationRecord
+  belongs_to :user
+end
+````
+#### user.rb
+````　user.rb
+class User < ApplicationRecord
+  # 中略
+  has_many :prototypes
+end
+````
+### １３）Active Storage導入
+・mini_magickとimage_processingのGemをGemfileに記述し、bundle installを実行
+####　Gemfile
+````Gemfile
+# 上略
+gem 'mini_magick'
+gem 'image_processing', '~> 1.2'
+````
+・`rails active_storage:install`でActive Storageを導入<br>
+・`rails db:migrate`を実行
+・Prototypeモデルに、has_one_attachedを使用してimageカラムとのアソシエーションを記述
+#### prototype.rb
+````prototype.rb
+class Prototype < ApplicationRecord
+  belongs_to :user
+  has_one_attached :image
+end
+````
+### １４）バリデーション設定
+#### prototype.rb
+````prototype.rb
+class Prototype < ApplicationRecord
+  belongs_to :user
+  has_one_attached :image
+
+  validates :title, presence: true
+  validates :catch_copy, presence: true
+  validates :concept, presence: true
+  validates :image, presence: true
+end
+````
+
+
+
+
+
+
+
 
