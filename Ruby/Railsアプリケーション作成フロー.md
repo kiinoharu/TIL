@@ -318,10 +318,38 @@ end
     end
   end
 ````
-
-
-
-
+### １６）投稿したプロトタイプをトップページに表示させる
+・各プロトタイプを表示するための部分テンプレート準備。今回は`_prototype.html.erb`とする。<br>
+・indexアクションに、インスタンス変数を定義し、すべてのプロトタイプの情報を代入
+#### prototypes_controller.ｒｂ
+````prototypes_controller.ｒｂ
+  def index
+    @prototypes = Prototype.all
+  end
+````
+・index.html.erbから_prototype.html.erbを呼び出し、プロトタイプ毎に、画像・プロトタイプ名・キャッチコピー・投稿者の名前を表示できるよう記述<br>
+※rederメソッドにてcollectionオプションを用いた実装。
+#### index.html.erb
+````index.html.erb
+      <%# 投稿機能実装後、部分テンプレートでプロトタイプ投稿一覧を表示する %>
+      <%= render partial: "prototype", collection: @prototypes, as: :prototype %>
+      # render partial: "prototype":prototypeファイルを指定
+      # collection: @prototypes:@prototypesコレクション内の各プロトタイプに対して、`_prototype.html.erb`部分テンプレートを繰り返し適用。
+      # as: :prototype:部分テンプレート内で `prototype` という変数名が使われる。
+````
+#### _prototype.html.erb
+````
+<div class="card">
+  <%= link_to image_tag(prototype.image, class: :card__img ), root_path%>
+  <div class="card__body">
+    <%= link_to prototype.title, root_path, class: :card__title%>
+    <p class="card__summary">
+      <%= prototype.catch_copy %>
+    </p>
+    <%= link_to prototype.user.name, root_path, class: :card__user %>
+  </div>
+</div>
+````
 
 
 
