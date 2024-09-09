@@ -350,6 +350,18 @@ end
   </div>
 </div>
 ````
-
+### ---プロトタイプの詳細ページ実装---
+### １７）アクションとルーティング設定
+#### prototypes_controller.rb
+````prototypes_controller.rb
+  def show  
+  end
+  # showアクション定義
+````
+#### routes.rb
+````routes.rb
+  resources :prototypes, only: [:index, :new, :create, :show]
+  # resourceｓへ`:show`追加
+````
 
 
