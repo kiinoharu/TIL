@@ -363,5 +363,62 @@ end
   resources :prototypes, only: [:index, :new, :create, :show]
   # resourceｓへ`:show`追加
 ````
+### １８）トップページのプロトタイプをクリック→詳細ページへ遷移する実装
+#### _prototype.html.erb
+````_prototype.html.erb
+<div class="card">
+  <%= link_to image_tag(prototype.image, class: :card__img ), prototype_path(prototype.id) %>
+  <div class="card__body">
+    <%= link_to prototype.title, prototype_path(prototype.id), class: :card__title%>
+    <p class="card__summary">
+      <%= prototype.catch_copy %>
+    </p>
+    <%= link_to prototype.user.name, prototype_path(prototype.id), class: :card__user %>
+  </div>
+</div>
 
-
+# 各link_toのパスに`prototype_path(prototype.id)`を記述。引数に`prototype.id`を設定することで、idが適切に渡され、URLが正常に生成される。
+````
+### １９）詳細ページで投稿情報表示
+・showアクションにインスタンス変数定義＋pathパラメータで送信されるIDで、prototypeモデルの特定のオブジェクトを取得するように記述し、インスタンス変数へ代入。
+#### prototypes_controller.rb
+````prototypes_controller.rb
+  def show
+    @prototype = Prototype.find(params[:id])
+  end
+````
+・`show.html.erb`をユーザー情報とトップページにて選択したプロトタイプが表示されるように記述
+#### show.html.erb
+````show.html.erb
+    <div class="user__wrapper">
+      <h2 class="page-heading">
+        <%= @prototype.user.name%>
+      </h2>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th class="table__col1">名前</th>
+            <td class="table__col2"><%= @prototype.user.name %></td>
+          </tr>
+          <tr>
+            <th class="table__col1">プロフィール</th>
+            <td class="table__col2"><%= @prototype.user.profile %></td>
+          </tr>
+          <tr>
+            <th class="table__col1">所属</th>
+            <td class="table__col2"><%= @prototype.user.occupation %></td>
+          </tr>
+          <tr>
+            <th class="table__col1">役職</th>
+            <td class="table__col2"><%= @prototype.user.position %></td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 class="page-heading">
+        <%= @prototype.user.name%> さんのプロトタイプ
+      </h2>
+      <div class="user__card">
+        <%= image_tag @prototype.image %>　　# 1つのプロトタイプの画像を表示する場合に使用
+      </div>
+    </div>
+````
