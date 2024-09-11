@@ -423,3 +423,56 @@ end
         </div>
       </div>
 ````
+### ２０）プロトタイプ情報の編集機能実装
+・アクションとルーティング設定<br>
+#### prototype_controller.rb
+````prototype_controller.rb
+  def edit
+  end
+
+  def update
+  end
+````
+#### routes.rb
+````routes.rb
+  resources :prototypes, only: [:index, :new, :create, :show, :edit, :update]
+  # `:edit`、`：update`追記
+````
+・編集機能に関するビューファイル作成<br>
+・詳細ページから編集ページに遷移できるよう設定
+#### show.html.erb
+````show.html.erb
+<%= link_to "編集する", edit_prototype_path, class: :prototype__btn %>
+# パスを`rails routes`にて確認して記述
+````
+・編集機能実装<br>
+①editアクションにインスタンス変数@prototypeを定義した。且つ、Pathパラメータで送信されるID値で、Prototypeモデルの特定のオブジェクトを取得するように記述、それを@prototypeへ代入。<br>
+②updateアクションにデータを更新する記述をし、更新されたときはそのプロトタイプの詳細ページに戻るような記述。<br>
+ 　＋データが更新されなかったときは、編集ページに戻るようにrenderを用いて記述。<br>
+③動作確認。バリデーションによって更新ができず編集ページへ戻ってきた場合でも、入力済みの項目（画像以外）は消えないことを確認。<br>
+#### prototype_controller.rb
+````prototype_controller.rb
+  def edit
+    @prototype = Prototype.find(params[:id])
+  end
+
+  def update
+    @prototype = Prototype.find(params[:id])
+    if @prototype.update(prototype_params)
+      redirect_to prototype_path(@prototype)
+    else
+      render :edit
+    end
+  end
+````
+
+
+
+
+
+
+
+
+#### 
+````
+````
