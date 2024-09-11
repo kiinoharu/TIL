@@ -387,38 +387,39 @@ end
     @prototype = Prototype.find(params[:id])
   end
 ````
-・`show.html.erb`をユーザー情報とトップページにて選択したプロトタイプが表示されるように記述
+・`show.html.erb`をユーザー情報とトップページにて選択したプロトタイプが表示される＋投稿したユーザーだけに「編集・削除」ボタンが表示されるように記述
 #### show.html.erb
 ````show.html.erb
-    <div class="user__wrapper">
-      <h2 class="page-heading">
-        <%= @prototype.user.name%>
-      </h2>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th class="table__col1">名前</th>
-            <td class="table__col2"><%= @prototype.user.name %></td>
-          </tr>
-          <tr>
-            <th class="table__col1">プロフィール</th>
-            <td class="table__col2"><%= @prototype.user.profile %></td>
-          </tr>
-          <tr>
-            <th class="table__col1">所属</th>
-            <td class="table__col2"><%= @prototype.user.occupation %></td>
-          </tr>
-          <tr>
-            <th class="table__col1">役職</th>
-            <td class="table__col2"><%= @prototype.user.position %></td>
-          </tr>
-        </tbody>
-      </table>
-      <h2 class="page-heading">
-        <%= @prototype.user.name%> さんのプロトタイプ
-      </h2>
-      <div class="user__card">
-        <%= image_tag @prototype.image %>　　# 1つのプロトタイプの画像を表示する場合に使用
+<main class="main">
+  <div class="inner">
+    <div class="prototype__wrapper">
+      <p class="prototype__hedding">
+        <%= @prototype.title%>
+      </p>
+      <%= link_to @prototype.user.name, root_path, class: :prototype__user %>
+      <%# プロトタイプの投稿者とログインしているユーザーが同じであれば以下を表示する %>
+      <% if user_signed_in? && current_user.id == @prototype.user.id %>
+        <div class="prototype__manage">
+          <%= link_to "編集する", root_path, class: :prototype__btn %>
+          <%= link_to "削除する", root_path, class: :prototype__btn %>
+        </div>
+      <% end %>
+      <%# // プロトタイプの投稿者とログインしているユーザーが同じであれば上記を表示する %>
+      <div class="prototype__image">
+        <%=  image_tag @prototype.image %>
       </div>
-    </div>
+      <div class="prototype__body">
+        <div class="prototype__detail">
+          <p class="detail__title">キャッチコピー</p>
+          <p class="detail__message">
+            <%= @prototype.catch_copy %>
+          </p>
+        </div>
+        <div class="prototype__detail">
+          <p class="detail__title">コンセプト</p>
+          <p class="detail__message">
+            <%= @prototype.concept %>
+          </p>
+        </div>
+      </div>
 ````
