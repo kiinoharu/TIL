@@ -465,9 +465,33 @@ end
     end
   end
 ````
-
-
-
+### ２１）プロトタイプ削除機能実装
+・アクションとルーティング設定
+#### prototype_controller.rb
+````prototype_controller.rb
+  def destroy
+  end
+````
+#### routes.rb
+````routes.rb
+resources :prototypes
+# アクションをすべて設定したため、onlyオプション省略
+````
+・「削除する」ボタンから、先ほど作成したルーティングが呼び込まれるよう設定
+#### show.html.erb
+````show.html.erb
+<%= link_to "削除する", prototype_path(@prototype), data: { turbo_method: :delete },class: :prototype__btn %>
+# HTTPメソッドに`DELETE`を指定
+````
+・destroyアクションに、プロトタイプを削除し、トップページに戻るよう記述
+#### prototype_controller.rb
+````prototype_controller.rb
+def destroy
+  @prototype = Prototype.find(params[:id])
+  @prototype.destroy
+  redirect_to root_path
+end
+````
 
 
 
