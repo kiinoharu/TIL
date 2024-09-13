@@ -492,7 +492,50 @@ def destroy
   redirect_to root_path
 end
 ````
+### ---コメント投稿機能実装---
+### ２２）Commentモデル及びテーブル作成
+・Commentモデル作成
+####ターミナル
+````ターミナル
+rails g model comment
+````
+・マイグレーションファイルに必要カラム追加
+#### 2024XXXXXXXXXX_create_comments.rb
+````2024XXXXXXXXXX_create_comments.rb
+  def change
+    create_table :comments do |t|
+      t.references :user,      null: false, foreign_key: true
+      t.references :prototype, null: false, foreign_key: true
+      t.text       :text
+      t.timestamps
+    end
+  end
+````
+・マイグレーション実行
+#### ターミナル
+````ターミナル
+rails db:migrate
+# コマンド実行後、DBにてカラムが追加されているか確認。
+````
+・各モデルにアソシエーション及びバリデーション設定
+#### comment.rb
+````comment.rb
+class Comment < ApplicationRecord
+  belongs_to :user
+  belongs_to :prototypes
 
+  validates :text, presence: true
+end
+````
+#### prototype.rb
+````prototype.rb
+  has_many :comments, dependent: :destroy　#追記
+````
+#### user.rb
+````user.rb
+  has_many :comments, dependent: :destroy　#追記
+````
+※`dependent: :destroy`オプションとは、具体的には、親モデル（`has_many`などで記述されたモデル）が削除された際、関連する子モデルも一緒に削除するオプションです。
 
 
 
