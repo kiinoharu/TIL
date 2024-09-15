@@ -629,7 +629,72 @@ end
   </li>
 <% end %>
 ````
-
+###　---ユーザー詳細ページ実装---
+### ２６）userコントローラー作成、アクション及びルーティング設定
+#### ターミナル
+````ターミナル
+　rails g controller users
+````
+#### users_controller.rb
+````users_controller.rb
+class UsersController < ApplicationController
+  def show
+  end
+end
+````
+#### routes.rb
+````routes.rb
+   resources :users, only: :show
+````
+・ユーザー詳細ページのビューファイルの設置<br>
+・各ページのユーザー名をクリックすると、ユーザー詳細ページに遷移するよう遷移先記述
+#### index.html.erb
+````index.html.erb
+<div class="greeting">
+  こんにちは、
+  <%= link_to current_user.name, user_path(current_user), class: :greeting__link%>です。
+</div> 
+````
+#### _prototype.html.erb
+````_prototype.html.erb
+ <%= link_to prototype.user.name, user_path(prototype.user), class: :card__user %>
+````
+#### show.html.erb
+````show.html.erb
+<%= link_to @prototype.user.name, user_path(@prototype.user), class: :prototype__user %>
+・・・
+<% @comments.each do |comment| %>
+  <li class="comments_list">
+    <%= comment.text %> 
+    <%= link_to comment.user.name, user_path(@prototype.user), class: :comment_user %> 
+  </li>
+<% end %>
+````
+### ２７）ユーザー詳細ページでユーザーの情報表示
+・usersコントローラーのshowアクションにインスタンス変数@userを定義。且つ、Pathパラメータで送信されるID値で、Userモデルの特定のオブジェクトを取得するように記述し、それを@userに代入。＋部分テンプレートにて`@prototypes`を使用するため、定義。
+#### users_controller.rb
+````users_controller.rb
+class UsersController < ApplicationController
+  def show
+    @user = User.find(params[:id])
+    @prototypes = @user.prototypes
+  end
+end
+````
+・ユーザー詳細ページでユーザーの各情報が表示できるよう記述＋部分テンプレート呼び出し。
+#### users/show.html.erb
+````users/show.html.erb
+<%= @user.name %>
+・・・
+<%= @user.profile %>
+・・・
+<%= @user.occupation %>
+・・・
+<%= @user.position %>
+・・・
+# 部分テンプレートでそのユーザーが投稿したプロトタイプ投稿一覧を表示する。 
+<%= render partial: "prototypes/prototype", collection: @prototypes %>
+````
 
 
 
