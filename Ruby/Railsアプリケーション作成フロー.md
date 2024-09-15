@@ -536,6 +536,101 @@ end
   has_many :comments, dependent: :destroy　#追記
 ````
 ※`dependent: :destroy`オプションとは、具体的には、親モデル（`has_many`などで記述されたモデル）が削除された際、関連する子モデルも一緒に削除するオプションです。
+### ２３）コントローラー作成、アクション設定及びルーティング設定
+#### ターミナル
+````ターミナル
+　rails g controllers comments
+　# コントローラー作成コマンド
+````
+#### comments_controller.rb
+````comments_controller.rb
+class CommentsController < ApplicationController
+  def create
+    
+  end
+　　　　# アクション定義
+end
+````
+#### routes.rb
+````routes.rb
+  resources :prototypes do
+    resources :comments, only: :create
+  end
+  # `resources :prototypes`にネスティングさせる。「あるプロトタイプに対してのコメント」という親子関係を表現したパスにできる。
+　　　　# 記述後、`rails routeｓ`にてルーティング確認。
+````
+### ２４）コメント投稿機能実装
+・`prototype_controller.rb`のshowアクションに、@commentというインスタンス変数を定義し、Commentモデルの新規オブジェクトを代入
+#### prototype_controller.rb
+````prototype_controller.rb
+  def show
+    @prototype = Prototype.find(params[:id])
+    @comment = Comment.new　　# 左記を追記
+  end
+````
+・`show.html.erb`のコメント投稿フォーム記述＋ログインしているユーザーにのみ表示するよう設定
+#### show.html.erb
+````show.html.erb
+<% if user_signed_in? %>
+  <%= form_with model: @comment, url: prototype_comments_path(@prototype),local: true do |f|%>
+  <div class="field">
+    <%= f.label :text, "コメント" %><br />
+    <%= f.text_field :text, id:"comment_content" %>
+  </div>
+    <div class="actions">
+      <%= f.submit "送信する", class: :form__btn  %>
+    </div>
+  <% end %>
+<% end %>
+````
+・`commenｔ_controlleｒ.rb`のprivateメソッドにストロングパラメーターをセットし、特定の値のみを受け付けるようにした。且つ、user_idとprototype_idもmerge
+#### commenｔ_controlleｒ.rb
+````commenｔ_controlleｒ.rb
+private 
+
+def comment_params
+  params.require(:comment).permit(:text).merge(user_id: current_user.id, prototype_id: params[:prototype_id])
+end
+````
+・createアクションに、データが保存されたときは詳細ページにリダイレクトされるよう記述＋データが保存されなかったときは詳細ページに戻るようrenderを用いて記述
+#### comments_controller.rb
+````comments_controller.rb
+class CommentsController < ApplicationController
+  def create
+    @comment = Comment.create(comment_params)
+    if @comment.save
+      redirect_to prototype_path(@comment.prototype)
+    else
+      @prototype = @comment.prototype
+      @comments = @prototype.comments
+      render "prototypes/show", status: :unprocessable_entity
+    end
+  end
+end
+````
+### ２５）投稿したコメントが詳細ページで表示されるよう実装
+・showアクションにインスタンス変数@commentsを定義し、その投稿に紐づくすべてのコメントを代入するための記述
+#### prototype_controller.rb
+````prototype_controller.rb
+  def show
+    @prototype = Prototype.find(params[:id])
+    @comment = Comment.new
+    @comments = @prototype.comments.includes(:user)　# 左記を追記
+  end
+````
+・｀show.html.erb`に投稿に紐づくコメントおよびその投稿者を表示する記述
+#### show.html.erb
+````show.html.erb
+<% @comments.each do |comment| %>
+　# @commetsに含まれるすべてのコメントをループ処理で1つずつ取り出し、それを`commet`変数として使う。
+  <li class="comments_list">
+    <%= comment.text %> 
+    <%= link_to comment.user.name, root_path, class: :comment_user %> 
+  </li>
+<% end %>
+````
+
+
 
 
 
