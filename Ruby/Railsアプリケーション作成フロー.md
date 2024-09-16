@@ -725,10 +725,106 @@ end
     end
   end
 ````
-
-
-
-
-#### 
+###　---デプロイ---
+### ２９）Renderを活用したデプロイ準備
+・PostgerSQLをインストール　※１度インストールすれば、２回目以降のデプロイ時はインストールの必要なし。
+#### ターミナル
+````ターミナル
+% brew install postgresql@14
+・・・
+# 上記インストール後、以下コマンド実施して、バージョン表示確認。
+% psql --version
+# =>psql (PostgreSQL) 14.5 (Homebrew)の様に表示されれば、OK
 ````
+・デプロイするアプリのGemにPostgerSQLを使用できるGemを追加
+#### Gemfile
+````Gemfile
+group :production do
+  gem 'pg'
+end
+````
+・Gemインストール
+#### ターミナル
+````ターミナル
+% bundle install
+````
+・デプロイ用の設定ファイル（`bin/render-build.sh`）を作成、記述
+#### bin/render-build.sh
+````bin/render-build.sh
+#!/usr/bin/env bash
+# exit on error
+set -o errexit
+
+bundle install
+bundle exec rake assets:precompile
+bundle exec rake assets:clean
+bundle exec rake db:migrate
+````
+・DBの設定を変更
+#### config/database.yml
+````config/database.yml
+default: &default
+  encoding: utf8
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  adapter: mysql2
+  username: root
+  password:
+  host: localhost
+  database: #アプリケーション名
+
+test:
+  <<: *default
+  adapter: mysql2
+  username: root
+  password:
+  host: localhost
+  database: #アプリケーション名
+
+production:
+  <<: *default
+  adapter: postgresql
+  url: <%= ENV['DATABASE_URL'] %>
+````
+・`Gemfile.lock`の設定を変更
+#### ターミナル
+````ターミナル
+% bundle lock --add-platform x86_64-linux
+# =>上記コマンド実行後、`credentials.yml.enc`,`master.key`の2つのファイルが作成される。
+````
+・秘密情報管理ファイルを作成<br>
+ GitHubからクローンしたアプリには`master.key`が含まれていないため、削除し、以下コマンドを実行し、新たに`master.key`を作成。
+ #### ターミナル
+````ターミナル
+% EDITOR="vi" bin/rails credentials:edit
+# 新しいファイルが作成されたことを確認した後、「escキー」→「:」→「q」と入力し、「enterキー」を押してファイルを閉じる。
+````
+・GitHubにコードをプッシュ
+### ３０）Renderでのデプロイ手順
+・DB作成
+#### Render
+````Render
+①ヘッダーの「＋New」ボタンの「PostgreSQL」を選択。
+②「Name→アプリ名、Region→Ohio」に設定。　※Regionについては、デフォルトのOregonは障害の発生率が高いため、回避する目的でOhioに設定。
+③「Create Database」をクリック
+　　　Statusが「Creating」→「Available」に変われば、DB作成完了。
+④「Internal Database URL」をコピー。後の工程で使用。
+````
+・アプリ新規作成
+#### Render
+````Render
+①ヘッダーの「＋New」ボタンの「Web Service」を選択。
+②GitHubのリポジトリと連携させる設定画面が表示されるため、デプロイするアプリを選択し、「Connect」ボタンをクリック。
+③「Name→アプリ名、Region→Ohio」に設定。
+④「Build Command：./bin/render-build.sh、Start Command：bundle exec puma -C config/puma.rb」に記述変更。
+⑤環境変数設定
+→「RAILS_MASTER_KEY：アプリのマスターキーを入力」
+→環境変数の入力欄追加
+→左側「DATABASE_URL」、右側「Internal Database URL」の内容をコピペ
+⑥「Deploy Web Service」のボタンをクリック
+→ターミナルが表示され、デプロイ作業が開始されたらOK
+→デプロイが完了すると、緑色のアイコンで「Live」と表示され、ターミナルに「Puma starting in cluster mode...」という文字が見える。
+→デプロイ完了後、リンクをクリックし、挙動確認。
 ````
