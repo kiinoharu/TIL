@@ -695,7 +695,36 @@ end
 # 部分テンプレートでそのユーザーが投稿したプロトタイプ投稿一覧を表示する。 
 <%= render partial: "prototypes/prototype", collection: @prototypes %>
 ````
-
+### ２８）ユーザーのアクセス範囲制限
+・ユーザーのログイン状態によってページ遷移を制限するページと制限しないページを把握
+#### 
+````
+# ログインしていない状態で遷移できないページ
+・新規投稿ページ
+・編集ページ
+・削除機能
+# ログインしていない状態でも遷移できるページ
+・トップページ
+・プロトタイプ詳細ページ
+・ユーザー詳細ページ
+・ユーザー新規投稿ページ
+・ログインページ
+````
+・`prototype_controller.rb`にアクセス制限を設定
+#### prototype_controller.rb
+````prototype_controller.rb
+  before_action :authenticate_user!,only: [:new,:edit,:destroy]　# 上記項目にて"ログインしていない状態で遷移できないページ"を`only`オプションにて指定。
+````
+・投稿者以外のユーザーが投稿者専用のページに遷移できないよう設定
+#### prototype_controller.rb
+````prototype_controller.rb
+  def edit
+    @prototype = Prototype.find(params[:id])
+    unless @prototype.user == current_user
+      redirect_to action: :index
+    end
+  end
+````
 
 
 
