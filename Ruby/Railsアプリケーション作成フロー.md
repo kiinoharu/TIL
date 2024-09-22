@@ -16,12 +16,12 @@ root to: “コントローラー名#index"
 
 `reils s`にて開発環境サーバーを立ち上げ、`localhost:3000`にアクセスし、動作確認。
 
-### ３）device導入
+### ３）devise導入
 1.`Gemfile`編集
 
 ````Gemfile
 # 中略
-gem ‘device’
+gem ‘devise’
 ````
 2.Gemインストール
 
@@ -37,15 +37,15 @@ gem ‘device’
 % rails s
 ````
 
-### ４）device設定ファイル作成
+### ４）devise設定ファイル作成
 
 ````ターミナル
 # deviseの設定ファイルを作成
 % rails g devise:install
 ````
-このコマンドは追加したdeviceの「設定関連に使用するファイル」を自動で生成するコマンド。
+このコマンドは追加したdeviseの「設定関連に使用するファイル」を自動で生成するコマンド。
 
-### deviceのUserモデル作成
+### deviseのUserモデル作成
 
 ````ターミナル
 # deviseコマンドでUserモデルを作成
